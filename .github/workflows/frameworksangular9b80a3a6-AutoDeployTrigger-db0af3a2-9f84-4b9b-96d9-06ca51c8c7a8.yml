@@ -1,0 +1,47 @@
+name: Trigger auto deployment for frameworksangular9b80a3a6
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '//**'
+    - '.github/workflows/frameworksangular9b80a3a6-AutoDeployTrigger-db0af3a2-9f84-4b9b-96d9-06ca51c8c7a8.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.FRAMEWORKSANGULAR9B80A3A6_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.FRAMEWORKSANGULAR9B80A3A6_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.FRAMEWORKSANGULAR9B80A3A6_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: 
+          registryUsername: ${{ secrets.FRAMEWORKSANGULAR9B80A3A6_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.FRAMEWORKSANGULAR9B80A3A6_REGISTRY_PASSWORD }}
+          containerAppName: frameworksangular9b80a3a6
+          resourceGroup: frameworksangular9b80
+          imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
